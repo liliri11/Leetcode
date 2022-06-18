@@ -1,0 +1,66 @@
+#Leetcode 307 (segment tree basic)
+class TreeNode:
+    def __init__(self, start, end, val, left=None, right=None):
+        self.start = start
+        self.end = end
+        self.val = val
+        self.left = left
+        self.right = right
+        
+class NumArray:
+
+    def __init__(self, nums: List[int]):
+        self.root = self.build(nums, 0, len(nums)-1)
+    
+    def build(self, nums, start, end):
+        
+        if start == end:
+            node = TreeNode(start, end, nums[start])
+            return node
+        
+        mid = (start+end) // 2
+        
+        left = self.build(nums, start, mid)
+        right = self.build(nums, mid+1, end)
+        
+        node = TreeNode(start, end, left.val + right.val, left, right)
+        
+        return node
+
+    def update(self, index: int, val: int) -> None:
+        self.updateHelper(index, val, self.root)
+        
+    def updateHelper(self, index, val, node):
+        if node.start == node.end == index:
+            node.val = val
+            return 
+        
+        mid = (node.start + node.end) // 2
+        if index <= mid:
+            self.updateHelper(index, val, node.left)
+        else:
+            self.updateHelper(index, val, node.right)
+        
+        node.val = node.left.val + node.right.val
+        
+
+    def sumRange(self, left: int, right: int) -> int:
+        return self.sumRangeHelper(left, right, self.root)
+        
+    def sumRangeHelper(self, left, right, node):
+        if node.start == left and node.end == right:
+            return node.val
+        mid = (node.start + node.end) // 2
+        if right <= mid:
+            return self.sumRangeHelper(left, right, node.left)
+        if left > mid:
+            return self.sumRangeHelper(left, right, node.right)
+        
+        return self.sumRangeHelper(left, mid, node.left) + self.sumRangeHelper(mid+1, right, node.right)
+        
+
+
+# Your NumArray object will be instantiated and called as such:
+# obj = NumArray(nums)
+# obj.update(index,val)
+# param_2 = obj.sumRange(left,right)
